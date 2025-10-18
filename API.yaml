@@ -1,0 +1,141 @@
+openapi: 3.0.3
+info:
+  title: C#/.NET Task Management API (v2)
+  description: |
+    Specyfikacja do testowania aplikacji 'API Clarity' zrealizowana w stylu popularnym dla projektów ASP.NET Core lub Node.js/Express. 
+    Zawiera typowe wzorce routingu i definicji schematów.
+  version: 2.0.0
+servers:
+  - url: https://api.codewiz-tasks.com/v2 # Wklej ten URL do swojej aplikacji
+    description: Główny serwer API dla testów
+
+components:
+  securitySchemes:
+    ApiKeyAuth: # Typowe dla backendów w C#
+      type: apiKey
+      in: header
+      name: X-API-KEY 
+  schemas:
+    TaskCreate:
+      type: object
+      properties:
+        title:
+          type: string
+          description: Tytuł zadania. Wymagane.
+          example: Zaimplementować walidację tokena JWT
+        dueDate:
+          type: string
+          format: date-time # Ważne dla C#/JS DateTime
+          description: Oczekiwana data ukończenia.
+          nullable: true
+        tags:
+          type: array
+          items:
+            type: string
+          description: Lista tagów (np. 'frontend', 'bug'). Wzrost złożoności.
+      required:
+        - title
+    
+    Task:
+      allOf: # Dziedziczenie schematu (typowe dla OpenAPI)
+        - $ref: '#/components/schemas/TaskCreate'
+        - type: object
+          properties:
+            taskId:
+              type: string
+              format: uuid # Typowe dla identyfikatorów GUID w C#
+              description: Unikalne ID zadania (generowane przez serwer).
+              example: 3e8a5b2f-9c0d-4f1e-8a2b-6c4d8e9f0a7b
+            createdAt:
+              type: string
+              format: date-time
+
+security:
+  - ApiKeyAuth: []
+
+paths:
+  /projects/{projectId}/tasks:
+    get:
+      summary: Pobiera listę zadań w danym projekcie
+      operationId: getTasksByProject
+      parameters:
+        - name: projectId
+          in: path
+          description: ID projektu (UUID)
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          description: Status filtrowania (pending, done)
+          required: false
+          schema:
+            type: string
+            default: pending
+            enum: [pending, done]
+      responses:
+        '200':
+          description: Lista zadań.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+        '401':
+          description: Brak lub nieprawidłowy klucz API.
+
+    post:
+      summary: Dodaje nowe zadanie do projektu
+      operationId: createTask
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskCreate'
+      responses:
+        '201':
+          description: Zadanie pomyślnie utworzone.
+          headers:
+            Location:
+              schema:
+                type: string
+                description: URL do nowego zasobu.
+        '400':
+          description: Błąd walidacji danych (np. brak 'title').
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                  message:
+                    type: string
+                    example: Pola 'title' i 'priority' są wymagane.
+
+  /tasks/{taskId}:
+    delete:
+      summary: Usuwa zadanie po ID
+      operationId: deleteTask
+      parameters:
+        - name: taskId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Zadanie pomyślnie usunięte.
+        '404':
+          description: Zadanie nie znalezione.
