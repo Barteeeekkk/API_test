@@ -6,7 +6,7 @@ info:
     Zawiera typowe wzorce routingu i definicji schematów.
   version: 2.0.0
 servers:
-  - url: https://api.codewiz-tasks.com/v2 # Wklej ten URL do swojej aplikacji
+  - url: https://jsonplaceholder.typicode.com # Wklej ten URL do swojej aplikacji
     description: Główny serwer API dla testów
 
 components:
@@ -138,4 +138,5 @@ paths:
         '204':
           description: Zadanie pomyślnie usunięte.
         '404':
+
           description: Zadanie nie znalezione.
