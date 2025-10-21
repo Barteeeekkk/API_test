@@ -137,6 +137,4 @@ paths:
         '200':
           description: Post pomyślnie zaktualizowany.
         '404':
-
           description: Post nie znaleziony.
-  
