@@ -54,7 +54,7 @@ security:
   - ApiKeyAuth: []
 
 paths:
-  /projects/{projectId}/tasks:
+  /users/1:
     get:
       summary: Pobiera listę zadań w danym projekcie
       operationId: getTasksByProject
@@ -140,5 +140,6 @@ paths:
         '404':
 
           description: Zadanie nie znalezione.
+
 
 
