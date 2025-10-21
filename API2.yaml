@@ -139,17 +139,4 @@ paths:
         '404':
 
           description: Post nie znaleziony.
-    
-    
-    get:
-      summary: Pobiera listę zadań na podstawie skomplikowanego filtra
-      operationId: getTasksWithFilter
-      parameters:
-        # Użyj parametru zapytania, który akceptuje obiekt JSON
-        - name: filter
-          in: query # Zamiast body, używamy query!
-          description: Skomplikowany filtr w formacie JSON
-          required: false
-          schema:
-            type: string
-            example: '{"priority": "high", "assignedTo": 123}'
+  
