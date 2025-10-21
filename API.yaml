@@ -54,7 +54,7 @@ security:
   - ApiKeyAuth: []
 
 paths:
-  /users/1:
+  /users/{id}:
     get:
       summary: Pobiera listę zadań w danym projekcie
       operationId: getTasksByProject
@@ -123,7 +123,7 @@ paths:
                     type: string
                     example: Pola 'title' i 'priority' są wymagane.
 
-  /tasks/{taskId}:
+  /users/{id}:
     delete:
       summary: Usuwa zadanie po ID
       operationId: deleteTask
@@ -140,6 +140,7 @@ paths:
         '404':
 
           description: Zadanie nie znalezione.
+
 
 
 
