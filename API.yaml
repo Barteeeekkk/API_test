@@ -11,7 +11,7 @@ servers:
 
 components:
   securitySchemes:
-    ApiKeyAuth: x
+    ApiKeyAuth: 
       type: apiKey
       in: header
       name: X-API-KEY 
@@ -140,4 +140,5 @@ paths:
         '404':
 
           description: Zadanie nie znalezione.
+
 
