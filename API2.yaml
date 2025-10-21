@@ -1,0 +1,140 @@
+openapi: 3.0.3
+info:
+  title: Simple Blog API
+  description: |
+    Prosta specyfikacja dla bloga, idealna do testowania autoryzacji Bearer Token, parsowania JSON body oraz wyświetlania listy operacji.
+    Używa ogólnodostępnego serwera JSONPlaceholder do weryfikacji GET.
+  version: 1.0.0
+servers:
+  # Używamy ogólnodostępnego serwera testowego, który posiada endpointy /posts i /comments
+  - url: https://jsonplaceholder.typicode.com
+    description: Publiczny serwer testowy dla testów GET.
+  # Dodajemy fikcyjny serwer dla testów POST/PUT, by zachować czystość specyfikacji
+  - url: https://api.myblogplatform.com/v1
+    description: Główny serwer do operacji zapisu (POST, PUT, DELETE).
+
+components:
+  securitySchemes:
+    # Definicja autoryzacji Bearer Token (najczęściej używany typ)
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Post:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unikalny ID posta (generowane przez serwer)
+          readOnly: true
+          example: 101
+        title:
+          type: string
+          description: Tytuł wpisu.
+          example: Jak naprawić błąd 404 w Serverless.
+        body:
+          type: string
+          description: Treść wpisu.
+        userId:
+          type: integer
+          description: ID autora wpisu.
+      required:
+        - title
+        - body
+        - userId
+        
+    Comment:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          example: 1
+        name:
+          type: string
+          example: Jan Kowalski
+        body:
+          type: string
+          example: Świetny post, dzięki za wyjaśnienie!
+
+# Wymagamy autoryzacji Bearer Token dla całego API
+security:
+  - BearerAuth: []
+
+paths:
+  /posts:
+    get:
+      summary: Pobiera listę wszystkich postów
+      operationId: getAllPosts
+      # JSONPlaceholder obsługuje to zapytanie! Oczekuj 200 OK
+      responses:
+        '200':
+          description: Lista postów.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Post'
+    post:
+      summary: Tworzy nowy wpis (wymaga Tokena)
+      operationId: createNewPost
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Post'
+      responses:
+        '201':
+          description: Wpis pomyślnie utworzony.
+        '401':
+          description: Brak lub nieprawidłowy Bearer Token.
+
+  /posts/{postId}/comments:
+    get:
+      summary: Pobiera komentarze dla danego posta
+      operationId: getCommentsByPostId
+      parameters:
+        - name: postId
+          in: path
+          description: ID posta
+          required: true
+          schema:
+            type: integer
+            example: 1
+      # JSONPlaceholder obsługuje ten endpoint! Oczekuj 200 OK
+      responses:
+        '200':
+          description: Lista komentarzy.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+                  
+  /posts/{postId}:
+    put:
+      summary: Aktualizuje istniejący wpis
+      operationId: updatePost
+      parameters:
+        - name: postId
+          in: path
+          description: ID posta do aktualizacji
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Post'
+      responses:
+        '200':
+          description: Post pomyślnie zaktualizowany.
+        '404':
+          description: Post nie znaleziony.
